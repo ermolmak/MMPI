@@ -38,10 +38,27 @@ private:
 class Survey
 {
 public:
+    struct ScaleScore
+    {
+        QString scaleName;
+        int initialScore;
+        double tScore;
+    };
+
+    struct TotalScore
+    {
+        QVector<ScaleScore> scalesResults;
+        int unanswered;
+    };
+
+    enum Answer {
+        YES, NO, WITHOUT_ANSWER
+    };
+
     struct Scale
     {
-        // TODO: think about access rights
         void setFromJson(const QJsonObject &obj);
+        ScaleScore computeScale(const QVector<Answer> &answers, double correctionTScore);
 
         QString name;
         double mean;
@@ -55,19 +72,8 @@ public:
                                                                   const QString &memberName);
     };
 
-    struct Score
-    {
-        QString scaleName;
-        int initialScore;
-        double tScore;
-    };
-
-    enum Answer {
-        YES, NO, WITHOUT_ANSWER
-    };
-
     void setFromJson(const QJsonObject &obj);
-    QVector<Score> compute(QVector<Answer> answers);
+    TotalScore compute(const QVector<Answer> &answers);
 
 private:
     static QVector<Scale> readScalesFromJson(const QJsonObject &obj, const QString &memberName);

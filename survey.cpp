@@ -26,6 +26,27 @@ void Survey::Scale::setFromJson(const QJsonObject &obj)
     }
 }
 
+Survey::ScaleScore Survey::Scale::computeScale(const QVector<Answer> &answers,
+                                               double correctionTScore)
+{
+    ScaleScore result;
+    result.scaleName = name;
+    result.initialScore = 0;
+    foreach (std::size_t i, statementsPositive) {
+        if (answers[i] == Answer::YES)
+            ++result.initialScore;
+    }
+    foreach (std::size_t i, statementsNegative) {
+        if (answers[i] == Answer::NO)
+            ++result.initialScore;
+    }
+    result.tScore = 50.0 + 10.0 * (result.initialScore - mean) / variance
+                         + correctionTScore * correction;
+
+    return result;
+    // TODO: checking array bounds (may be on reading stage)
+}
+
 QVector<std::size_t> Survey::Scale::readStatementsNumbersFromJson(const QJsonObject &obj,
                                                                   const QString &memberName)
 {
@@ -72,7 +93,7 @@ void Survey::setFromJson(const QJsonObject &obj)
     }
 }
 
-QVector<Survey::Score> Survey::compute(QVector<Survey::Answer> answers)
+Survey::TotalScore Survey::compute(const QVector<Answer> &answers)
 {
     if (answers.size() != statements.size()) {
         // TODO: exception
