@@ -58,7 +58,7 @@ public:
     struct Scale
     {
         void setFromJson(const QJsonObject &obj, int statementsAmount);
-        ScaleScore computeScale(const QVector<Answer> &answers, double correctionTScore);
+        ScaleScore computeScale(const QVector<Answer> &answers, double correctionTScore = 0) const;
 
         QString name;
         double mean;
@@ -74,7 +74,7 @@ public:
     };
 
     void setFromJson(const QJsonObject &obj);
-    TotalScore compute(const QVector<Answer> &answers);
+    TotalScore compute(const QVector<Answer> &answers) const;
 
 private:
     static QVector<Scale> readScalesFromJson(const QJsonObject &obj, const QString &memberName, int statementsAmount);

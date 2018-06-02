@@ -27,7 +27,7 @@ void Survey::Scale::setFromJson(const QJsonObject &obj, int statementsAmount)
 }
 
 Survey::ScaleScore Survey::Scale::computeScale(const QVector<Answer> &answers,
-                                               double correctionTScore)
+                                               double correctionTScore) const
 {
     ScaleScore result;
     result.scaleName = name;
@@ -93,16 +93,27 @@ void Survey::setFromJson(const QJsonObject &obj)
     }
 }
 
-Survey::TotalScore Survey::compute(const QVector<Answer> &answers)
+Survey::TotalScore Survey::compute(const QVector<Answer> &answers) const
 {
     if (answers.size() != statements.size()) {
         // TODO: exception
     }
 
+    TotalScore result;
+    result.unanswered = std::count(answers.begin(), answers.end(), Answer::WITHOUT_ANSWER);
+    foreach (const Scale &scale, additionalScales) {
+        result.scalesResults.append(scale.computeScale(answers));
+    }
+    foreach (const Scale &scale, primaryScales) {
+        result.scalesResults.append(scale.computeScale(answers, result.scalesResults[correctionScale].tScore));
+    }
 
+    return result;
 }
 
-QVector<Survey::Scale> Survey::readScalesFromJson(const QJsonObject &obj, const QString &memberName, int statementsAmount)
+QVector<Survey::Scale> Survey::readScalesFromJson(const QJsonObject &obj,
+                                                  const QString &memberName,
+                                                  int statementsAmount)
 {
     QJsonValue valueScales = obj[memberName];
     if (!valueScales.isArray())
