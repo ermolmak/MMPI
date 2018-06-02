@@ -1,6 +1,6 @@
 #include "survey.h"
 
-void Survey::Scale::setFromJson(const QJsonObject &obj)
+void Survey::Scale::setFromJson(const QJsonObject &obj, int statementsAmount)
 {
     name = obj["name"].toString();
     if (name.isNull())
@@ -19,8 +19,8 @@ void Survey::Scale::setFromJson(const QJsonObject &obj)
         correction = 0;
 
     try {
-        statementsPositive = readStatementsNumbersFromJson(obj, "positive");
-        statementsNegative = readStatementsNumbersFromJson(obj, "negative");
+        statementsPositive = readStatementsNumbersFromJson(obj, "positive", statementsAmount);
+        statementsNegative = readStatementsNumbersFromJson(obj, "negative", statementsAmount);
     } catch(JsonReadException e) {
         throw JsonReadException("scale \"" + name + "\": " + e.what());
     }
@@ -44,11 +44,11 @@ Survey::ScaleScore Survey::Scale::computeScale(const QVector<Answer> &answers,
                          + correctionTScore * correction;
 
     return result;
-    // TODO: checking array bounds (may be on reading stage)
 }
 
 QVector<std::size_t> Survey::Scale::readStatementsNumbersFromJson(const QJsonObject &obj,
-                                                                  const QString &memberName)
+                                                                  const QString &memberName,
+                                                                  int statementsAmount)
 {
     QJsonValue value = obj[memberName];
     if (!value.isArray())
@@ -59,7 +59,7 @@ QVector<std::size_t> Survey::Scale::readStatementsNumbersFromJson(const QJsonObj
     result.reserve(array.size());
     foreach (const QJsonValue &x, array) {
         int number = x.toInt(-1);
-        if (number < 0)
+        if (number < 0 || number >= statementsAmount)
             throw JsonReadException("array named \"" + memberName + "\" has incorrect value");
         result.append(x.toInt());
     }
@@ -69,9 +69,9 @@ QVector<std::size_t> Survey::Scale::readStatementsNumbersFromJson(const QJsonObj
 
 void Survey::setFromJson(const QJsonObject &obj)
 {
-    primaryScales = readScalesFromJson(obj, "primary_scales");
-    additionalScales = readScalesFromJson(obj, "additional_scales");
     statements = readStatementsFromJson(obj);
+    primaryScales = readScalesFromJson(obj, "primary_scales", statements.size());
+    additionalScales = readScalesFromJson(obj, "additional_scales", statements.size());
 
     QJsonValue correction = obj["correction_scale"];
     if (correction.isString()) {
@@ -102,7 +102,7 @@ Survey::TotalScore Survey::compute(const QVector<Answer> &answers)
 
 }
 
-QVector<Survey::Scale> Survey::readScalesFromJson(const QJsonObject &obj, const QString &memberName)
+QVector<Survey::Scale> Survey::readScalesFromJson(const QJsonObject &obj, const QString &memberName, int statementsAmount)
 {
     QJsonValue valueScales = obj[memberName];
     if (!valueScales.isArray())
@@ -117,7 +117,7 @@ QVector<Survey::Scale> Survey::readScalesFromJson(const QJsonObject &obj, const 
 
         Scale scale;
         try {
-            scale.setFromJson(x.toObject());
+            scale.setFromJson(x.toObject(), statementsAmount);
         } catch (JsonReadException e) {
             throw JsonReadException(memberName + ": " + e.what());
         }
