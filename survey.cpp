@@ -1,6 +1,6 @@
 #include "survey.h"
 
-void Survey::Scale::setFromJson(const QJsonObject &obj, int statementsAmount)
+Survey::Scale::Scale(const QJsonObject &obj, int statementsAmount)
 {
     name = obj["name"].toString();
     if (name.isNull())
@@ -134,13 +134,12 @@ QVector<Survey::Scale> Survey::readScalesFromJson(const QJsonObject &obj,
         if (!x.isObject())
             JsonReadException("all values in the array \"" + memberName + "\" must be objects");
 
-        Scale scale;
         try {
-            scale.setFromJson(x.toObject(), statementsAmount);
+            Scale scale(x.toObject(), statementsAmount);
+            result.append(scale);
         } catch (JsonReadException e) {
             throw JsonReadException(memberName + ": " + e.what());
         }
-        result.append(scale);
     }
 
     return result;

@@ -57,7 +57,10 @@ public:
 
     struct Scale
     {
-        void setFromJson(const QJsonObject &obj, int statementsAmount);
+        Scale() = default;
+        Scale(const Scale &) = default;
+        Scale(const QJsonObject &obj, int statementsAmount);
+
         ScaleScore computeScale(const QVector<Answer> &answers, double correctionTScore = 0) const;
 
         QString name;
