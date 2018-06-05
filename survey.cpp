@@ -105,7 +105,8 @@ Survey::TotalScore Survey::compute(const QVector<Answer> &answers) const
         result.scalesResults.append(scale.computeScale(answers));
     }
     foreach (const Scale &scale, primaryScales) {
-        result.scalesResults.append(scale.computeScale(answers, result.scalesResults[correctionScale].tScore));
+        result.scalesResults.append(
+                    scale.computeScale(answers, result.scalesResults[correctionScale].tScore));
     }
 
     return result;

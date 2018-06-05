@@ -77,7 +77,9 @@ public:
     TotalScore compute(const QVector<Answer> &answers) const;
 
 private:
-    static QVector<Scale> readScalesFromJson(const QJsonObject &obj, const QString &memberName, int statementsAmount);
+    static QVector<Scale> readScalesFromJson(const QJsonObject &obj,
+                                             const QString &memberName,
+                                             int statementsAmount);
     static QVector<QString> readStatementsFromJson(const QJsonObject &obj);
 
     QVector<Scale> primaryScales;
