@@ -67,7 +67,7 @@ QVector<std::size_t> Survey::Scale::readStatementsNumbersFromJson(const QJsonObj
     return result;
 }
 
-void Survey::setFromJson(const QJsonObject &obj)
+Survey::Survey(const QJsonObject &obj)
 {
     QJsonValue descriptionValue = obj["description"];
     if (descriptionValue.isString())

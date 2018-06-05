@@ -73,7 +73,7 @@ public:
                                                                   int statementsAmount);
     };
 
-    void setFromJson(const QJsonObject &obj);
+    Survey(const QJsonObject &obj);
     TotalScore compute(const QVector<Answer> &answers) const;
 
 private:
