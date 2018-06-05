@@ -69,6 +69,13 @@ QVector<std::size_t> Survey::Scale::readStatementsNumbersFromJson(const QJsonObj
 
 void Survey::setFromJson(const QJsonObject &obj)
 {
+    QJsonValue descriptionValue = obj["description"];
+    if (descriptionValue.isString())
+        description = descriptionValue.toString();
+    else
+        throw JsonReadException("value \"description\" isn\'t found or"
+                                "has wrong type (must be a string)");
+
     statements = readStatementsFromJson(obj);
     primaryScales = readScalesFromJson(obj, "primary_scales", statements.size());
     additionalScales = readScalesFromJson(obj, "additional_scales", statements.size());

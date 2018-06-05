@@ -82,6 +82,7 @@ private:
                                              int statementsAmount);
     static QVector<QString> readStatementsFromJson(const QJsonObject &obj);
 
+    QString description;
     QVector<Scale> primaryScales;
     QVector<Scale> additionalScales;
     QVector<QString> statements;
